@@ -21,15 +21,15 @@ export function Header() {
   } = useSonarStore();
 
   return (
-    <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-30 h-16 border-b border-primary/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-full items-center justify-between px-6">
         {/* Project Title */}
         <div className="flex items-center gap-4">
           <h1 className="text-lg font-semibold tracking-tight">
-            <span className="text-primary font-mono">SONAR</span>
-            <span className="text-muted-foreground ml-2">DEMONSTRATOR</span>
+            <span className="text-primary font-mono sonar-glow-text">SONAR</span>
+            <span className="text-foreground/70 ml-2">DEMONSTRATOR</span>
           </h1>
-          <Badge variant="outline" className="font-mono text-xs">
+          <Badge variant="outline" className="font-mono text-xs border-primary/30 text-primary">
             {scenarioName}
           </Badge>
         </div>
@@ -37,7 +37,7 @@ export function Header() {
         {/* Controls */}
         <div className="flex items-center gap-4">
           {/* Mode Toggle */}
-          <div className="flex items-center gap-2 rounded-lg bg-secondary p-1">
+          <div className="flex items-center gap-1 rounded-lg bg-secondary border border-primary/20 p-1">
             <Button
               variant={simulation.mode === 'active' ? 'default' : 'ghost'}
               size="sm"
@@ -59,8 +59,8 @@ export function Header() {
           </div>
 
           {/* Time Display */}
-          <div className="flex items-center gap-2 font-mono text-sm">
-            <Clock className="h-4 w-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 font-mono text-sm px-3 py-1.5 rounded-lg bg-secondary/50 border border-primary/20">
+            <Clock className="h-4 w-4 text-primary/70" />
             <span className="text-primary">
               T+{simulation.currentTime.toFixed(1)}s
             </span>
@@ -73,7 +73,7 @@ export function Header() {
                 variant="outline"
                 size="sm"
                 onClick={pauseSimulation}
-                className="gap-2"
+                className="gap-2 border-primary/30 hover:bg-primary/10"
               >
                 <Pause className="h-4 w-4" />
                 Pause
@@ -93,7 +93,7 @@ export function Header() {
               variant="outline"
               size="sm"
               onClick={resetSimulation}
-              className="gap-2"
+              className="gap-2 border-primary/30 hover:bg-primary/10"
             >
               <RotateCcw className="h-4 w-4" />
               Reset
@@ -101,15 +101,15 @@ export function Header() {
           </div>
 
           {/* Status Indicator */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-secondary/50 border border-primary/20">
             <div
               className={`h-2 w-2 rounded-full ${
                 simulation.isRunning
-                  ? 'bg-accent animate-pulse'
+                  ? 'bg-detection-positive animate-pulse'
                   : 'bg-muted-foreground'
               }`}
             />
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs font-mono text-foreground/70">
               {simulation.isRunning ? 'RUNNING' : 'IDLE'}
             </span>
           </div>

@@ -22,12 +22,12 @@ export function RayPathVisualization() {
     const width = rect.width;
     const height = 400;
 
-    // Clear canvas
-    ctx.fillStyle = 'hsl(222, 47%, 6%)';
+    // Clear canvas - Navy blue background
+    ctx.fillStyle = 'hsl(230, 50%, 8%)';
     ctx.fillRect(0, 0, width, height);
 
-    // Draw grid
-    ctx.strokeStyle = 'hsl(222, 30%, 15%)';
+    // Draw grid - Navy grid lines
+    ctx.strokeStyle = 'hsl(230, 35%, 18%)';
     ctx.lineWidth = 0.5;
 
     // Vertical grid lines (range)
@@ -53,7 +53,7 @@ export function RayPathVisualization() {
     const scaleY = height / maxDepth;
 
     // Draw surface
-    ctx.strokeStyle = 'hsl(200, 60%, 40%)';
+    ctx.strokeStyle = 'hsl(230, 50%, 40%)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, 0);
@@ -61,8 +61,8 @@ export function RayPathVisualization() {
     ctx.stroke();
 
     // Draw seabed
-    ctx.strokeStyle = 'hsl(30, 40%, 30%)';
-    ctx.fillStyle = 'hsl(30, 40%, 15%)';
+    ctx.strokeStyle = 'hsl(43, 50%, 30%)';
+    ctx.fillStyle = 'hsl(43, 30%, 15%)';
     ctx.beginPath();
     ctx.moveTo(0, maxDepth * scaleY);
     ctx.lineTo(width, maxDepth * scaleY);
@@ -71,12 +71,12 @@ export function RayPathVisualization() {
     ctx.fill();
     ctx.stroke();
 
-    // Ray colors
+    // Ray colors - Gold themed
     const rayColors = [
-      'hsl(187, 100%, 42%)', // Direct - Cyan
-      'hsl(160, 84%, 39%)', // Surface - Green
-      'hsl(38, 92%, 50%)',  // Bottom - Orange
-      'hsl(270, 60%, 60%)', // Convergence - Purple
+      'hsl(43, 85%, 55%)',  // Direct - Gold
+      'hsl(120, 60%, 45%)', // Surface - Green
+      'hsl(43, 90%, 65%)',  // Bottom - Light Gold
+      'hsl(30, 70%, 50%)',  // Convergence - Bronze
     ];
 
     // Draw ray paths
@@ -99,20 +99,20 @@ export function RayPathVisualization() {
       ctx.stroke();
     });
 
-    // Draw platform
+    // Draw platform - Gold color
     const platformX = platform.position.x * scaleX;
     const platformY = platform.position.depth * scaleY;
 
     ctx.beginPath();
     ctx.arc(platformX, platformY, 8, 0, Math.PI * 2);
-    ctx.fillStyle = 'hsl(187, 100%, 42%)';
+    ctx.fillStyle = 'hsl(43, 85%, 55%)';
     ctx.fill();
-    ctx.strokeStyle = 'hsl(187, 100%, 60%)';
+    ctx.strokeStyle = 'hsl(43, 90%, 70%)';
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // Sonar ping animation rings
-    ctx.strokeStyle = 'hsl(187, 100%, 42%)';
+    // Sonar ping animation rings - Gold
+    ctx.strokeStyle = 'hsl(43, 85%, 55%)';
     ctx.lineWidth = 1;
     for (let r = 20; r <= 60; r += 20) {
       ctx.globalAlpha = 1 - r / 80;
@@ -141,8 +141,8 @@ export function RayPathVisualization() {
       ctx.fillText(target.name, targetX + 10, targetY - 5);
     });
 
-    // Axis labels
-    ctx.fillStyle = 'hsl(215, 20%, 55%)';
+    // Axis labels - Muted text
+    ctx.fillStyle = 'hsl(230, 20%, 60%)';
     ctx.font = '11px Inter';
     ctx.fillText('Range (m)', width / 2 - 30, height - 5);
     ctx.save();
@@ -152,7 +152,7 @@ export function RayPathVisualization() {
 
     // Scale indicators
     ctx.font = '9px JetBrains Mono';
-    ctx.fillStyle = 'hsl(215, 20%, 45%)';
+    ctx.fillStyle = 'hsl(230, 20%, 50%)';
     for (let r = 0; r <= maxRange; r += 2000) {
       ctx.fillText(`${r}`, r * scaleX, height - 15);
     }

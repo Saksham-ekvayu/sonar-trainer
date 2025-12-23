@@ -18,40 +18,41 @@ export function SNRChart() {
       <ComposedChart data={snrVsRangeData}>
         <defs>
           <linearGradient id="snrGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="hsl(160 84% 39%)" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="hsl(160 84% 39%)" stopOpacity={0} />
+            <stop offset="5%" stopColor="hsl(120 60% 45%)" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="hsl(120 60% 45%)" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(222 30% 20%)" />
+        <CartesianGrid strokeDasharray="3 3" stroke="hsl(230 35% 22%)" />
         <XAxis
           dataKey="range"
-          stroke="hsl(215 20% 55%)"
+          stroke="hsl(230 20% 60%)"
           fontSize={12}
           tickFormatter={(value) => `${value / 1000}km`}
           label={{
             value: 'Range',
             position: 'bottom',
-            fill: 'hsl(215 20% 55%)',
+            fill: 'hsl(230 20% 60%)',
             fontSize: 11,
           }}
         />
         <YAxis
-          stroke="hsl(215 20% 55%)"
+          stroke="hsl(230 20% 60%)"
           fontSize={12}
           label={{
             value: 'SNR (dB)',
             angle: -90,
             position: 'insideLeft',
-            fill: 'hsl(215 20% 55%)',
+            fill: 'hsl(230 20% 60%)',
             fontSize: 11,
           }}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: 'hsl(222 47% 8%)',
-            border: '1px solid hsl(222 30% 18%)',
+            backgroundColor: 'hsl(230 50% 10%)',
+            border: '1px solid hsl(43 85% 55%)',
             borderRadius: '8px',
             fontSize: '12px',
+            color: 'hsl(45 30% 95%)',
           }}
           labelFormatter={(value) => `Range: ${value}m`}
           formatter={(value: number) => [`${value.toFixed(1)} dB`, 'SNR']}
@@ -75,10 +76,10 @@ export function SNRChart() {
         <Line
           type="monotone"
           dataKey="snr"
-          stroke="hsl(160 84% 39%)"
+          stroke="hsl(120 60% 45%)"
           strokeWidth={2}
           dot={false}
-          activeDot={{ r: 4, fill: 'hsl(160 84% 50%)' }}
+          activeDot={{ r: 4, fill: 'hsl(120 60% 55%)' }}
         />
       </ComposedChart>
     </ResponsiveContainer>

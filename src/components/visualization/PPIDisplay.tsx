@@ -30,12 +30,12 @@ export function PPIDisplay({ showNoise, showReverberation }: PPIDisplayProps) {
     const maxRadius = size / 2 - 40;
 
     const draw = () => {
-      // Clear with fade effect for trailing
-      ctx.fillStyle = 'hsla(222, 47%, 6%, 0.15)';
+      // Clear with fade effect for trailing - Navy blue
+      ctx.fillStyle = 'hsla(230, 50%, 8%, 0.15)';
       ctx.fillRect(0, 0, size, size);
 
-      // Draw range rings
-      ctx.strokeStyle = 'hsl(222, 30%, 20%)';
+      // Draw range rings - Navy grid
+      ctx.strokeStyle = 'hsl(230, 35%, 22%)';
       ctx.lineWidth = 0.5;
       for (let r = 1; r <= 5; r++) {
         const radius = (r / 5) * maxRadius;
@@ -43,8 +43,8 @@ export function PPIDisplay({ showNoise, showReverberation }: PPIDisplayProps) {
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
         ctx.stroke();
 
-        // Range labels
-        ctx.fillStyle = 'hsl(215, 20%, 40%)';
+        // Range labels - Muted gold
+        ctx.fillStyle = 'hsl(43, 40%, 50%)';
         ctx.font = '10px JetBrains Mono';
         ctx.fillText(`${r * 2}km`, centerX + 5, centerY - radius + 12);
       }
@@ -62,7 +62,7 @@ export function PPIDisplay({ showNoise, showReverberation }: PPIDisplayProps) {
 
         // Bearing labels
         const labelRadius = maxRadius + 15;
-        ctx.fillStyle = 'hsl(215, 20%, 50%)';
+        ctx.fillStyle = 'hsl(43, 40%, 55%)';
         ctx.font = '10px Inter';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -73,14 +73,14 @@ export function PPIDisplay({ showNoise, showReverberation }: PPIDisplayProps) {
         );
       }
 
-      // Draw noise field if enabled
+      // Draw noise field if enabled - Navy tinted
       if (showNoise) {
         ppiData.noiseField.forEach((sector) => {
           const startAngle = ((sector.bearing - 5) * Math.PI) / 180;
           const endAngle = ((sector.bearing + 5) * Math.PI) / 180;
           const intensity = (sector.level - 40) / 40;
 
-          ctx.fillStyle = `hsla(222, 60%, ${30 + intensity * 20}%, ${
+          ctx.fillStyle = `hsla(230, 55%, ${25 + intensity * 15}%, ${
             0.1 + intensity * 0.15
           })`;
           ctx.beginPath();
@@ -91,12 +91,12 @@ export function PPIDisplay({ showNoise, showReverberation }: PPIDisplayProps) {
         });
       }
 
-      // Draw reverberation rings if enabled
+      // Draw reverberation rings if enabled - Gold tinted
       if (showReverberation) {
         for (let r = 0.2; r <= 1; r += 0.2) {
           const radius = r * maxRadius;
           const alpha = 0.1 * (1 - r);
-          ctx.strokeStyle = `hsla(187, 100%, 42%, ${alpha})`;
+          ctx.strokeStyle = `hsla(43, 85%, 55%, ${alpha})`;
           ctx.lineWidth = 3;
           ctx.beginPath();
           ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
@@ -104,7 +104,7 @@ export function PPIDisplay({ showNoise, showReverberation }: PPIDisplayProps) {
         }
       }
 
-      // Draw sweep line
+      // Draw sweep line - Gold
       if (simulation.isRunning) {
         const sweepRad = (sweepAngleRef.current * Math.PI) / 180;
         
@@ -115,8 +115,8 @@ export function PPIDisplay({ showNoise, showReverberation }: PPIDisplayProps) {
           centerX + maxRadius * Math.sin(sweepRad),
           centerY - maxRadius * Math.cos(sweepRad)
         );
-        gradient.addColorStop(0, 'hsla(187, 100%, 42%, 0.8)');
-        gradient.addColorStop(1, 'hsla(187, 100%, 42%, 0)');
+        gradient.addColorStop(0, 'hsla(43, 85%, 55%, 0.8)');
+        gradient.addColorStop(1, 'hsla(43, 85%, 55%, 0)');
 
         ctx.strokeStyle = gradient;
         ctx.lineWidth = 2;
@@ -131,7 +131,7 @@ export function PPIDisplay({ showNoise, showReverberation }: PPIDisplayProps) {
         // Sweep trail
         for (let i = 1; i <= 30; i++) {
           const trailRad = ((sweepAngleRef.current - i) * Math.PI) / 180;
-          ctx.strokeStyle = `hsla(187, 100%, 42%, ${0.02 * (30 - i) / 30})`;
+          ctx.strokeStyle = `hsla(43, 85%, 55%, ${0.02 * (30 - i) / 30})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(centerX, centerY);
@@ -160,7 +160,7 @@ export function PPIDisplay({ showNoise, showReverberation }: PPIDisplayProps) {
           contact.type === 'submarine'
             ? 'hsl(0, 72%, 51%)'
             : contact.type === 'ship'
-            ? 'hsl(38, 92%, 50%)'
+            ? 'hsl(43, 85%, 55%)'
             : 'hsl(270, 60%, 60%)';
 
         ctx.fillStyle = contactColor;
@@ -173,22 +173,22 @@ export function PPIDisplay({ showNoise, showReverberation }: PPIDisplayProps) {
         ctx.shadowBlur = 0;
 
         // Contact label
-        ctx.fillStyle = 'hsl(210, 40%, 96%)';
+        ctx.fillStyle = 'hsl(45, 30%, 95%)';
         ctx.font = '10px JetBrains Mono';
         ctx.fillText(contact.id, x + 10, y - 5);
         ctx.font = '9px JetBrains Mono';
         ctx.fillText(`${contact.bearing}° ${(contact.range / 1000).toFixed(1)}km`, x + 10, y + 7);
       });
 
-      // Draw own ship
+      // Draw own ship - Gold
       ctx.beginPath();
       ctx.arc(centerX, centerY, 8, 0, Math.PI * 2);
-      ctx.fillStyle = 'hsl(187, 100%, 42%)';
+      ctx.fillStyle = 'hsl(43, 85%, 55%)';
       ctx.fill();
 
-      // Own ship heading indicator
+      // Own ship heading indicator - Gold
       const headingRad = (platform.heading * Math.PI) / 180;
-      ctx.strokeStyle = 'hsl(187, 100%, 60%)';
+      ctx.strokeStyle = 'hsl(43, 90%, 70%)';
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
@@ -213,7 +213,7 @@ export function PPIDisplay({ showNoise, showReverberation }: PPIDisplayProps) {
   return (
     <canvas
       ref={canvasRef}
-      className="w-full max-w-[500px] h-[500px] mx-auto rounded-full border border-border"
+      className="w-full max-w-[500px] h-[500px] mx-auto rounded-full border border-primary/30"
       style={{ imageRendering: 'crisp-edges' }}
     />
   );

@@ -19,6 +19,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import navyLogo from '@/assets/indian-navy-logo.webp';
 
 const navItems = [
   { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -39,28 +40,43 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300',
+        'fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-primary/20 transition-all duration-300',
         collapsed ? 'w-16' : 'w-64'
       )}
     >
       <div className="flex h-full flex-col">
         {/* Logo */}
-        <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
+        <div className="flex h-20 items-center justify-between border-b border-primary/20 px-3">
           {!collapsed && (
-            <div className="flex items-center gap-2">
-              <div className="relative h-8 w-8">
-                <div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse-ring" />
-                <div className="absolute inset-1 rounded-full bg-primary/40" />
-                <div className="absolute inset-2 rounded-full bg-primary" />
+            <div className="flex items-center gap-3">
+              <img 
+                src={navyLogo} 
+                alt="Indian Navy" 
+                className="h-12 w-auto object-contain"
+              />
+              <div className="flex flex-col">
+                <span className="font-mono text-xs font-bold text-primary sonar-glow-text">
+                  SONAR
+                </span>
+                <span className="font-mono text-[10px] text-muted-foreground">
+                  DEMONSTRATOR
+                </span>
               </div>
-              <span className="font-mono text-sm font-bold text-primary sonar-glow-text">
-                SONAR
-              </span>
             </div>
+          )}
+          {collapsed && (
+            <img 
+              src={navyLogo} 
+              alt="Indian Navy" 
+              className="h-10 w-auto object-contain mx-auto"
+            />
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 rounded-md hover:bg-sidebar-accent text-sidebar-foreground transition-colors"
+            className={cn(
+              "p-1.5 rounded-md hover:bg-primary/10 text-primary transition-colors",
+              collapsed && "absolute right-1 top-16"
+            )}
           >
             {collapsed ? (
               <ChevronRight className="h-4 w-4" />
@@ -83,8 +99,8 @@ export function Sidebar() {
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
                     isActive
-                      ? 'bg-primary/10 text-primary sonar-glow'
-                      : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                      ? 'bg-primary/15 text-primary sonar-glow border border-primary/30'
+                      : 'text-sidebar-foreground hover:bg-primary/10 hover:text-primary'
                   )}
                 >
                   <Icon
@@ -102,7 +118,7 @@ export function Sidebar() {
                   {collapsed ? (
                     <Tooltip delayDuration={0}>
                       <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-                      <TooltipContent side="right" className="font-medium">
+                      <TooltipContent side="right" className="font-medium bg-card border-primary/30">
                         {item.label}
                       </TooltipContent>
                     </Tooltip>
@@ -116,11 +132,11 @@ export function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-sidebar-border p-4">
+        <div className="border-t border-primary/20 p-4">
           {!collapsed && (
             <div className="text-xs text-muted-foreground">
-              <p className="font-mono">v1.0.0</p>
-              <p className="mt-1">Naval Sonar Simulator</p>
+              <p className="font-mono text-primary/80">v1.0.0</p>
+              <p className="mt-1">Indian Navy Sonar Simulator</p>
             </div>
           )}
         </div>

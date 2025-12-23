@@ -6,61 +6,62 @@
 
 @layer base {
   :root {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 96%;
+    /* Indian Navy Theme - Navy Blue & Gold */
+    --background: 230 50% 8%;
+    --foreground: 45 30% 95%;
 
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 96%;
+    --card: 230 50% 10%;
+    --card-foreground: 45 30% 95%;
 
-    --popover: 222 47% 10%;
-    --popover-foreground: 210 40% 96%;
+    --popover: 230 50% 12%;
+    --popover-foreground: 45 30% 95%;
 
-    --primary: 187 100% 42%;
-    --primary-foreground: 222 47% 6%;
+    --primary: 43 85% 55%;
+    --primary-foreground: 230 50% 10%;
 
-    --secondary: 222 30% 15%;
-    --secondary-foreground: 210 40% 96%;
+    --secondary: 230 40% 15%;
+    --secondary-foreground: 45 30% 95%;
 
-    --muted: 222 30% 12%;
-    --muted-foreground: 215 20% 55%;
+    --muted: 230 35% 14%;
+    --muted-foreground: 230 20% 60%;
 
-    --accent: 160 84% 39%;
-    --accent-foreground: 222 47% 6%;
+    --accent: 43 90% 50%;
+    --accent-foreground: 230 50% 10%;
 
     --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 45 30% 98%;
 
     --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 6%;
+    --warning-foreground: 230 50% 10%;
 
-    --border: 222 30% 18%;
-    --input: 222 30% 15%;
-    --ring: 187 100% 42%;
+    --border: 230 35% 20%;
+    --input: 230 40% 15%;
+    --ring: 43 85% 55%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 222 47% 5%;
-    --sidebar-foreground: 210 40% 96%;
-    --sidebar-primary: 187 100% 42%;
-    --sidebar-primary-foreground: 222 47% 6%;
-    --sidebar-accent: 222 30% 12%;
-    --sidebar-accent-foreground: 210 40% 96%;
-    --sidebar-border: 222 30% 15%;
-    --sidebar-ring: 187 100% 42%;
+    --sidebar-background: 230 50% 6%;
+    --sidebar-foreground: 45 30% 95%;
+    --sidebar-primary: 43 85% 55%;
+    --sidebar-primary-foreground: 230 50% 10%;
+    --sidebar-accent: 230 40% 14%;
+    --sidebar-accent-foreground: 45 30% 95%;
+    --sidebar-border: 230 35% 18%;
+    --sidebar-ring: 43 85% 55%;
 
-    /* Custom sonar colors */
-    --sonar-glow: 187 100% 42%;
-    --sonar-ping: 187 100% 60%;
-    --detection-positive: 160 84% 39%;
+    /* Custom sonar colors - Navy theme */
+    --sonar-glow: 43 85% 55%;
+    --sonar-ping: 43 90% 65%;
+    --detection-positive: 120 60% 45%;
     --detection-negative: 0 72% 51%;
-    --water-deep: 222 60% 10%;
-    --water-surface: 200 60% 25%;
-    --grid-line: 222 30% 20%;
+    --water-deep: 230 55% 12%;
+    --water-surface: 230 50% 30%;
+    --grid-line: 230 35% 22%;
   }
 
   .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 96%;
+    --background: 230 50% 8%;
+    --foreground: 45 30% 95%;
   }
 }
 
@@ -90,7 +91,7 @@
   }
 
   .detection-positive {
-    @apply text-accent;
+    @apply text-detection-positive;
     text-shadow: 0 0 8px hsl(var(--detection-positive) / 0.6);
   }
 
@@ -120,7 +121,7 @@
     background: linear-gradient(
       135deg,
       hsl(var(--card)) 0%,
-      hsl(222 47% 7%) 100%
+      hsl(230 50% 9%) 100%
     );
   }
 
@@ -134,6 +135,20 @@
 
   .equation-term {
     @apply font-mono bg-secondary px-2 py-1 rounded text-primary;
+  }
+
+  /* Gold border accent */
+  .gold-border {
+    border-color: hsl(var(--primary));
+  }
+
+  /* Navy gradient background */
+  .navy-gradient {
+    background: linear-gradient(
+      180deg,
+      hsl(230 50% 8%) 0%,
+      hsl(230 55% 12%) 100%
+    );
   }
 }
 
