@@ -1,242 +1,212 @@
-import { useEffect, useRef, useState } from 'react';
-import {
-  CameraController,
-  EDrawMeshAs,
-  GradientColorPalette,
-  MouseWheelZoomModifier3D,
-  NumberRange,
-  NumericAxis3D,
-  OrbitModifier3D,
-  ResetCamera3DModifier,
-  SciChart3DSurface,
-  SurfaceMeshRenderableSeries3D,
-  UniformGridDataSeries3D,
-  Vector3,
-  zeroArray2D,
-} from 'scichart';
-import { Loader2 } from 'lucide-react';
+import { useRef, useMemo, useEffect } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Grid, Text } from '@react-three/drei';
+import * as THREE from 'three';
 
-// Initialize SciChart with community license
-SciChart3DSurface.UseCommunityLicense();
+interface SurfaceMeshProps {
+  isAnimating: boolean;
+}
+
+function SonarSurfaceMesh({ isAnimating }: SurfaceMeshProps) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const geometryRef = useRef<THREE.PlaneGeometry>(null);
+  const frameRef = useRef(0);
+
+  const gridSize = 50;
+  const segments = gridSize - 1;
+
+  // Create initial geometry
+  const geometry = useMemo(() => {
+    const geo = new THREE.PlaneGeometry(10, 10, segments, segments);
+    geo.rotateX(-Math.PI / 2);
+    return geo;
+  }, [segments]);
+
+  // Create gradient material with Indian Navy colors
+  const material = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        colorLow: { value: new THREE.Color('#0a192f') },    // Deep navy
+        colorMid1: { value: new THREE.Color('#1a3a5c') },   // Navy blue
+        colorMid2: { value: new THREE.Color('#2a5a8c') },   // Medium blue
+        colorMid3: { value: new THREE.Color('#8aa4c8') },   // Light blue
+        colorHigh: { value: new THREE.Color('#C5A047') },   // Gold
+        colorTop: { value: new THREE.Color('#E8D08C') },    // Light gold
+        minHeight: { value: -0.5 },
+        maxHeight: { value: 0.5 },
+      },
+      vertexShader: `
+        varying float vHeight;
+        varying vec3 vNormal;
+        
+        void main() {
+          vHeight = position.y;
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 colorLow;
+        uniform vec3 colorMid1;
+        uniform vec3 colorMid2;
+        uniform vec3 colorMid3;
+        uniform vec3 colorHigh;
+        uniform vec3 colorTop;
+        uniform float minHeight;
+        uniform float maxHeight;
+        
+        varying float vHeight;
+        varying vec3 vNormal;
+        
+        void main() {
+          float t = (vHeight - minHeight) / (maxHeight - minHeight);
+          t = clamp(t, 0.0, 1.0);
+          
+          vec3 color;
+          if (t < 0.2) {
+            color = mix(colorLow, colorMid1, t / 0.2);
+          } else if (t < 0.4) {
+            color = mix(colorMid1, colorMid2, (t - 0.2) / 0.2);
+          } else if (t < 0.6) {
+            color = mix(colorMid2, colorMid3, (t - 0.4) / 0.2);
+          } else if (t < 0.8) {
+            color = mix(colorMid3, colorHigh, (t - 0.6) / 0.2);
+          } else {
+            color = mix(colorHigh, colorTop, (t - 0.8) / 0.2);
+          }
+          
+          // Add lighting
+          vec3 lightDir = normalize(vec3(1.0, 1.0, 1.0));
+          float diff = max(dot(vNormal, lightDir), 0.3);
+          
+          gl_FragColor = vec4(color * diff, 1.0);
+        }
+      `,
+      side: THREE.DoubleSide,
+    });
+  }, []);
+
+  // Animate the surface
+  useFrame(() => {
+    if (!meshRef.current || !isAnimating) return;
+
+    frameRef.current += 0.05;
+    const positions = meshRef.current.geometry.attributes.position;
+    const f = frameRef.current;
+
+    for (let i = 0; i < positions.count; i++) {
+      const x = positions.getX(i);
+      const z = positions.getZ(i);
+      
+      // Create sonar-like wave patterns
+      const distance = Math.sqrt(x * x + z * z);
+      const mainWave = Math.cos(distance * 2 - f) * Math.exp(-distance * 0.3) * 0.4;
+      const secondaryWave = Math.sin(distance * 1.5 - f * 0.7) * Math.exp(-distance * 0.4) * 0.2;
+      const noise = (Math.random() - 0.5) * 0.02;
+      
+      positions.setY(i, mainWave + secondaryWave + noise);
+    }
+
+    positions.needsUpdate = true;
+    meshRef.current.geometry.computeVertexNormals();
+  });
+
+  return (
+    <mesh ref={meshRef} geometry={geometry} material={material} castShadow receiveShadow>
+    </mesh>
+  );
+}
+
+function AxisLabels() {
+  return (
+    <>
+      {/* X Axis Label */}
+      <Text
+        position={[6, -0.5, 0]}
+        fontSize={0.4}
+        color="#C5A047"
+        anchorX="center"
+        anchorY="middle"
+      >
+        Range (m)
+      </Text>
+      
+      {/* Y Axis Label */}
+      <Text
+        position={[-6, 2, 0]}
+        fontSize={0.4}
+        color="#C5A047"
+        anchorX="center"
+        anchorY="middle"
+        rotation={[0, 0, Math.PI / 2]}
+      >
+        Amplitude (dB)
+      </Text>
+      
+      {/* Z Axis Label */}
+      <Text
+        position={[0, -0.5, 6]}
+        fontSize={0.4}
+        color="#C5A047"
+        anchorX="center"
+        anchorY="middle"
+      >
+        Frequency (Hz)
+      </Text>
+    </>
+  );
+}
 
 interface SurfaceMesh3DChartProps {
   isAnimating?: boolean;
 }
 
 export function SurfaceMesh3DChart({ isAnimating = true }: SurfaceMesh3DChartProps) {
-  const chartRef = useRef<HTMLDivElement>(null);
-  const sciChartRef = useRef<{
-    sciChartSurface: SciChart3DSurface;
-    controls: { startUpdate: () => void; stopUpdate: () => void };
-  } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const initChart = async () => {
-      if (!chartRef.current) return;
-
-      try {
-        // Create a SciChart3DSurface
-        const { sciChart3DSurface, wasmContext } = await SciChart3DSurface.create(
-          chartRef.current,
-          {
-            theme: {
-              type: 'Custom',
-              axisBandsFill: 'transparent',
-              axisTitleColor: '#C5A047',
-              axisPlaneBackgroundFill: 'rgba(10, 25, 47, 0.8)',
-              gridBackgroundBrush: 'rgba(10, 25, 47, 0.9)',
-              gridBorderBrush: '#1a3a5c',
-              loadingAnimationForeground: '#C5A047',
-              loadingAnimationBackground: '#0a192f',
-              majorGridLineBrush: 'rgba(197, 160, 71, 0.2)',
-              minorGridLineBrush: 'rgba(197, 160, 71, 0.1)',
-              tickTextBrush: '#8aa4c8',
-              labelForegroundBrush: '#C5A047',
-              labelBackgroundBrush: 'transparent',
-              labelBorderBrush: 'transparent',
-              cursorLineBrush: '#C5A047',
-              annotationsGripsBorderBrush: '#C5A047',
-              annotationsGripsBackgroundBrush: 'rgba(197, 160, 71, 0.3)',
-              sciChartBackground: '#0a192f',
-            },
-          }
-        );
-
-        // Create and position the camera
-        sciChart3DSurface.camera = new CameraController(wasmContext, {
-          position: new Vector3(-150, 200, 150),
-          target: new Vector3(0, 50, 0),
-        });
-
-        // Set world dimensions
-        sciChart3DSurface.worldDimensions = new Vector3(200, 100, 200);
-
-        // Add X, Y, Z Axes with navy theme colors
-        sciChart3DSurface.xAxis = new NumericAxis3D(wasmContext, {
-          axisTitle: 'Range (m)',
-          axisTitleStyle: { color: '#C5A047', fontSize: 14 },
-          labelStyle: { color: '#8aa4c8', fontSize: 11 },
-          majorTickLineStyle: { color: '#C5A047' },
-        });
-
-        sciChart3DSurface.yAxis = new NumericAxis3D(wasmContext, {
-          axisTitle: 'Amplitude (dB)',
-          visibleRange: new NumberRange(-0.5, 0.5),
-          axisTitleStyle: { color: '#C5A047', fontSize: 14 },
-          labelStyle: { color: '#8aa4c8', fontSize: 11 },
-          majorTickLineStyle: { color: '#C5A047' },
-        });
-
-        sciChart3DSurface.zAxis = new NumericAxis3D(wasmContext, {
-          axisTitle: 'Frequency (Hz)',
-          axisTitleStyle: { color: '#C5A047', fontSize: 14 },
-          labelStyle: { color: '#8aa4c8', fontSize: 11 },
-          majorTickLineStyle: { color: '#C5A047' },
-        });
-
-        // Create 2D array for heightmap data
-        const zSize = 48;
-        const xSize = 48;
-        const heightmapArray = zeroArray2D([zSize, xSize]);
-
-        // Create UniformGridDataSeries3D
-        const dataSeries = new UniformGridDataSeries3D(wasmContext, {
-          yValues: heightmapArray,
-          xStep: 1,
-          zStep: 1,
-          dataSeriesName: 'Sonar Signal Surface',
-        });
-
-        // Color palette matching Indian Navy theme (navy blue to gold)
-        const colorPalette = new GradientColorPalette(wasmContext, {
-          gradientStops: [
-            { offset: 0, color: '#0a192f' },     // Deep navy
-            { offset: 0.2, color: '#1a3a5c' },   // Navy blue
-            { offset: 0.4, color: '#2a5a8c' },   // Medium blue
-            { offset: 0.6, color: '#8aa4c8' },   // Light blue
-            { offset: 0.8, color: '#C5A047' },   // Gold
-            { offset: 1, color: '#E8D08C' },     // Light gold
-          ],
-        });
-
-        // Create surface mesh series
-        const series = new SurfaceMeshRenderableSeries3D(wasmContext, {
-          dataSeries,
-          minimum: -0.5,
-          maximum: 0.5,
-          opacity: 0.95,
-          cellHardnessFactor: 1.0,
-          shininess: 30,
-          lightingFactor: 0.8,
-          highlight: 1.0,
-          stroke: '#C5A047',
-          strokeThickness: 1.5,
-          contourStroke: '#C5A047',
-          contourInterval: 0.1,
-          contourOffset: 0,
-          contourStrokeThickness: 1,
-          drawSkirt: false,
-          drawMeshAs: EDrawMeshAs.SOLID_WIREFRAME,
-          meshColorPalette: colorPalette,
-        });
-
-        sciChart3DSurface.renderableSeries.add(series);
-
-        // Add camera controls
-        sciChart3DSurface.chartModifiers.add(new MouseWheelZoomModifier3D());
-        sciChart3DSurface.chartModifiers.add(new OrbitModifier3D());
-        sciChart3DSurface.chartModifiers.add(new ResetCamera3DModifier());
-
-        // Animation function for realtime sonar signal visualization
-        let frame = 0;
-        let timer: ReturnType<typeof setInterval>;
-
-        const setData = (i: number) => {
-          const f = i / 10;
-          for (let z = 0; z < zSize; z++) {
-            for (let x = 0; x < xSize; x++) {
-              // Simulate sonar signal processing data
-              const xVal = (x - xSize / 2) / xSize;
-              const zVal = (z - zSize / 2) / zSize;
-              const distance = Math.sqrt(xVal * xVal + zVal * zVal);
-              
-              // Create wave patterns simulating sonar returns
-              const mainPulse = Math.sin(distance * 20 - f) * Math.exp(-distance * 3);
-              const secondaryEcho = Math.sin(distance * 15 - f * 0.8) * Math.exp(-distance * 4) * 0.5;
-              const noise = (Math.random() - 0.5) * 0.05;
-              
-              heightmapArray[z][x] = mainPulse + secondaryEcho + noise;
-            }
-          }
-          dataSeries.setYValues(heightmapArray);
-        };
-
-        const updateFunc = () => {
-          setData(frame);
-          frame++;
-        };
-
-        updateFunc(); // Initial render
-
-        const startUpdate = () => {
-          frame = 0;
-          timer = setInterval(updateFunc, 33); // ~30fps
-        };
-
-        const stopUpdate = () => {
-          clearInterval(timer);
-        };
-
-        sciChartRef.current = {
-          sciChartSurface: sciChart3DSurface,
-          controls: { startUpdate, stopUpdate },
-        };
-
-        if (isAnimating) {
-          startUpdate();
-        }
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error initializing SciChart3D:', error);
-        setIsLoading(false);
-      }
-    };
-
-    initChart();
-
-    return () => {
-      if (sciChartRef.current) {
-        sciChartRef.current.controls.stopUpdate();
-        sciChartRef.current.sciChartSurface.delete();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (sciChartRef.current) {
-      if (isAnimating) {
-        sciChartRef.current.controls.startUpdate();
-      } else {
-        sciChartRef.current.controls.stopUpdate();
-      }
-    }
-  }, [isAnimating]);
-
   return (
-    <div className="relative w-full h-[400px] rounded-lg overflow-hidden border border-border bg-navy-dark">
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
-          <div className="flex flex-col items-center gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="text-sm text-muted-foreground font-mono">
-              Initializing 3D Surface...
-            </span>
-          </div>
-        </div>
-      )}
-      <div ref={chartRef} className="w-full h-full" />
+    <div className="w-full h-[400px] rounded-lg overflow-hidden border border-border bg-[#0a192f]">
+      <Canvas
+        camera={{ position: [8, 6, 8], fov: 50 }}
+        gl={{ antialias: true, alpha: true }}
+        style={{ background: '#0a192f' }}
+      >
+        {/* Lighting */}
+        <ambientLight intensity={0.4} />
+        <directionalLight position={[10, 10, 5]} intensity={0.8} color="#ffffff" />
+        <directionalLight position={[-10, 5, -10]} intensity={0.3} color="#8aa4c8" />
+        <pointLight position={[0, 5, 0]} intensity={0.5} color="#C5A047" />
+
+        {/* Grid */}
+        <Grid
+          position={[0, -0.6, 0]}
+          args={[12, 12]}
+          cellSize={1}
+          cellThickness={0.5}
+          cellColor="#1a3a5c"
+          sectionSize={5}
+          sectionThickness={1}
+          sectionColor="#C5A047"
+          fadeDistance={30}
+          fadeStrength={1}
+          infiniteGrid={false}
+        />
+
+        {/* Surface Mesh */}
+        <SonarSurfaceMesh isAnimating={isAnimating} />
+
+        {/* Axis Labels */}
+        <AxisLabels />
+
+        {/* Controls */}
+        <OrbitControls
+          enablePan={true}
+          enableZoom={true}
+          enableRotate={true}
+          minDistance={5}
+          maxDistance={20}
+          autoRotate={isAnimating}
+          autoRotateSpeed={0.5}
+        />
+      </Canvas>
     </div>
   );
 }
