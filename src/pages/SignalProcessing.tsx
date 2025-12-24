@@ -8,16 +8,19 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { BrainCircuit, Activity } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { BrainCircuit, Activity, Box, Play, Pause } from 'lucide-react';
 import { useState } from 'react';
 import { BeamPatternChart } from '@/components/charts/BeamPatternChart';
 import { MatchedFilterChart } from '@/components/charts/MatchedFilterChart';
 import { DopplerChart } from '@/components/charts/DopplerChart';
+import { SurfaceMesh3DChart } from '@/components/charts/SurfaceMesh3DChart';
 
 export default function SignalProcessing() {
   const [beamformingMethod, setBeamformingMethod] = useState<'delay-sum' | 'mvdr'>(
     'delay-sum'
   );
+  const [is3DAnimating, setIs3DAnimating] = useState(true);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -207,6 +210,72 @@ export default function SignalProcessing() {
           </CardContent>
         </Card>
       </div>
+
+      {/* 3D Surface Mesh - Sonar Signal Visualization */}
+      <Card className="data-panel">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Box className="h-5 w-5 text-primary" />
+              3D Sonar Signal Surface
+              <Badge variant="outline" className="text-xs">
+                Real-time
+              </Badge>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIs3DAnimating(!is3DAnimating)}
+              className="gap-2"
+            >
+              {is3DAnimating ? (
+                <>
+                  <Pause className="h-4 w-4" />
+                  Pause
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4" />
+                  Animate
+                </>
+              )}
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SurfaceMesh3DChart isAnimating={is3DAnimating} />
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="rounded-lg bg-secondary/30 p-3">
+              <div className="text-xs text-muted-foreground">Grid Size</div>
+              <div className="font-mono text-lg font-bold text-primary">
+                48 × 48
+              </div>
+            </div>
+            <div className="rounded-lg bg-secondary/30 p-3">
+              <div className="text-xs text-muted-foreground">Update Rate</div>
+              <div className="font-mono text-lg font-bold text-primary">
+                30 fps
+              </div>
+            </div>
+            <div className="rounded-lg bg-secondary/30 p-3">
+              <div className="text-xs text-muted-foreground">Signal Type</div>
+              <div className="font-mono text-lg font-bold text-primary">
+                Pulse Echo
+              </div>
+            </div>
+            <div className="rounded-lg bg-secondary/30 p-3">
+              <div className="text-xs text-muted-foreground">Visualization</div>
+              <div className="font-mono text-lg font-bold text-primary">
+                Surface Mesh
+              </div>
+            </div>
+          </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Use mouse to rotate (drag), zoom (scroll), and reset view (double-click). 
+            This visualization shows real-time sonar pulse returns across range and frequency dimensions.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
